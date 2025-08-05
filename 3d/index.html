@@ -175,17 +175,12 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="transform-code" id="transformCode">
-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
-            </div>
         </div>
     </div>
 
     <script>
         const demoElement = document.getElementById('demo-element');
         const demoContainer = document.getElementById('demo__container');
-        const transformCode = document.getElementById('transformCode');
         
         let currentMatrix = [
             [1, 0, 0],
@@ -328,7 +323,6 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
             const matrix3d = matrix3x3ToMatrix3d(currentMatrix);
             const transform = `matrix3d(${matrix3d.join(', ')})`;
             demoElement.style.transform = transform;
-            transformCode.textContent = `transform: ${transform}`;
             
             // Check if transformation is identity (no change)
             const isIdentity = currentMatrix.every((row, i) => 

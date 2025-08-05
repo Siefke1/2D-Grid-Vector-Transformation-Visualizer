@@ -83,8 +83,8 @@ h1 {
 }
 
 .demo-output {
-    width: 800px;
-    height: 600px;
+    width: 600px;
+    height: 450px;
     border: 2px solid #ddd;
     border-radius: 10px;
     background: #f8f9fa;
@@ -386,6 +386,7 @@ button:hover {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     width: 100%;
+    margin-top: 10px;
 }
 
 .rotation-group {
@@ -479,74 +480,88 @@ button:hover {
     body {
         padding: 10px;
     }
+    
     .container {
         padding: 15px;
-        margin: 10px;
+        margin: 0;
     }
+    
     h1 {
-        font-size: 1.8em;
+        font-size: 24px;
         margin-bottom: 20px;
     }
+    
     .canvas-container {
-        margin: 15px 0;
-        flex-direction: column;
+        padding: 10px;
+        min-height: 350px;
     }
+    
     canvas {
         max-width: 100%;
         height: auto;
     }
+    
     .zoom-controls {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin: 10px 0;
-        text-align: center;
-        order: -1;
+        flex-direction: column;
+        gap: 10px;
     }
+    
     .controls {
         gap: 10px;
-        margin: 15px 0;
-    }
-    .control-group {
         padding: 10px;
     }
-    .control-group h3 {
-        font-size: 1.1em;
-    }
-    .rotation-controls {
-        grid-template-columns: 1fr;
-    }
-    .rotation-group {
+    
+    .control-group {
         padding: 8px;
     }
-    .rotation-group h4 {
+    
+    .control-group h3 {
         font-size: 12px;
+        margin-bottom: 6px;
     }
-    /* Hide desktop camera controls on mobile */
+    
+    .rotation-controls {
+        gap: 8px;
+    }
+    
+    .rotation-group {
+        gap: 4px;
+    }
+    
+    .rotation-group h4 {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+    
     .camera-controls {
-        display: none;
+        gap: 8px;
     }
-    /* Show mobile camera card on mobile */
+    
     .mobile-camera-card {
         display: block !important;
+        margin-bottom: 10px;
+        padding: 8px;
     }
+    
     .preset-buttons {
-        flex-direction: column;
+        gap: 6px;
     }
+    
     .preset-btn {
-        margin-bottom: 5px;
+        font-size: 11px;
+        padding: 4px 8px;
     }
+    
     .legend {
-        flex-direction: column;
-        gap: 10px;
+        font-size: 11px;
     }
+    
     .matrix-display {
-        font-size: 14px;
-        padding: 10px;
+        font-size: 11px;
     }
+    
     .matrix-element {
-        width: 50px;
-        margin: 0 5px;
+        font-size: 10px;
     }
 }
 
