@@ -226,6 +226,32 @@ button:hover {
     border-radius: 3px;
 }
 
+.matrix-input-container {
+    margin: 10px 0;
+    font-size: 11px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    background: #f8f9fa;
+}
+
+.matrix-row {
+    display: flex;
+    align-items: center;
+    margin: 3px 0;
+    gap: 5px;
+}
+
+.matrix-row input[type="number"] {
+    flex: 1;
+    width: 50px;
+    padding: 4px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 11px;
+    text-align: center;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .main-layout {

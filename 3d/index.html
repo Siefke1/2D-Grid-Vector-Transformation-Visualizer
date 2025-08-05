@@ -14,7 +14,7 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #007bff;"></div>
-                <span>3D Cube</span>
+                <span>Original Cube</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #ff6b6b;"></div>
@@ -30,10 +30,22 @@
             <div class="controls">
             <div class="control-group">
                 <h3>Transformation Matrix (3x3)</h3>
-                <div>
-                    <input type="number" id="a11" value="1" step="0.1" onchange="applyTransformation()"> <input type="number" id="a12" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a13" value="0" step="0.1" onchange="applyTransformation()"><br>
-                    <input type="number" id="a21" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a22" value="1" step="0.1" onchange="applyTransformation()"> <input type="number" id="a23" value="0" step="0.1" onchange="applyTransformation()"><br>
-                    <input type="number" id="a31" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a32" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a33" value="1" step="0.1" onchange="applyTransformation()">
+                <div class="matrix-input-container">
+                    <div class="matrix-row">
+                        <input type="number" id="a11" value="1" step="0.1" onchange="applyTransformation()">
+                        <input type="number" id="a12" value="0" step="0.1" onchange="applyTransformation()">
+                        <input type="number" id="a13" value="0" step="0.1" onchange="applyTransformation()">
+                    </div>
+                    <div class="matrix-row">
+                        <input type="number" id="a21" value="0" step="0.1" onchange="applyTransformation()">
+                        <input type="number" id="a22" value="1" step="0.1" onchange="applyTransformation()">
+                        <input type="number" id="a23" value="0" step="0.1" onchange="applyTransformation()">
+                    </div>
+                    <div class="matrix-row">
+                        <input type="number" id="a31" value="0" step="0.1" onchange="applyTransformation()">
+                        <input type="number" id="a32" value="0" step="0.1" onchange="applyTransformation()">
+                        <input type="number" id="a33" value="1" step="0.1" onchange="applyTransformation()">
+                    </div>
                 </div>
                 <div class="transformation-info" id="transformationInfo">
                     <div>Matrix: [1.00  0.00  0.00]</div>
@@ -113,19 +125,27 @@
             
             <div class="canvas-container">
                 <div class="demo-output">
-                    <div class="demo-output__container" id="demo__container">
-                        <div class="demo-element" id="demo-element">
-                            <div class="side side-back">3</div>
-                            <div class="side side-bottom">6</div>
-                            <div class="side side-right">2</div>
-                            <div class="side side-left">4</div>
-                            <div class="side side-front">1</div>
-                            <div class="side side-top">5</div>
-                        </div>
-                        <p class="axial-line axial-line--x"></p>
-                        <p class="axial-line axial-line--y"></p>
-                        <p class="axial-line axial-line--z"></p>
+                                    <div class="demo-output__container" id="demo__container">
+                    <div class="demo-element original-cube" id="original-element">
+                        <div class="side side-back">3</div>
+                        <div class="side side-bottom">6</div>
+                        <div class="side side-right">2</div>
+                        <div class="side side-left">4</div>
+                        <div class="side side-front">1</div>
+                        <div class="side side-top">5</div>
                     </div>
+                    <div class="demo-element transformed-cube" id="demo-element">
+                        <div class="side side-back">3</div>
+                        <div class="side side-bottom">6</div>
+                        <div class="side side-right">2</div>
+                        <div class="side side-left">4</div>
+                        <div class="side side-front">1</div>
+                        <div class="side side-top">5</div>
+                    </div>
+                    <p class="axial-line axial-line--x"></p>
+                    <p class="axial-line axial-line--y"></p>
+                    <p class="axial-line axial-line--z"></p>
+                </div>
                     <div class="view-controls">
                         <button onclick="resetView()">Reset View</button>
                         <div class="view-info" id="viewInfo">Camera: (0, 0, 8)</div>
@@ -286,6 +306,19 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
             const transform = `matrix3d(${matrix3d.join(', ')})`;
             demoElement.style.transform = transform;
             transformCode.textContent = `transform: ${transform}`;
+            
+            // Check if transformation is identity (no change)
+            const isIdentity = currentMatrix.every((row, i) => 
+                row.every((val, j) => val === (i === j ? 1 : 0))
+            );
+            
+            // Show/hide transformed cube based on whether transformation is identity
+            const transformedCube = document.querySelector('.transformed-cube');
+            if (isIdentity) {
+                transformedCube.classList.remove('show');
+            } else {
+                transformedCube.classList.add('show');
+            }
         }
         
         function resetGrid() {

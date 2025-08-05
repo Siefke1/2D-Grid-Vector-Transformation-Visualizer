@@ -111,6 +111,28 @@ h1 {
     transform-style: preserve-3d;
 }
 
+.original-cube {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+    transform: translate(-50%, -50%);
+}
+
+.transformed-cube {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.transformed-cube.show {
+    opacity: 1;
+}
+
 .side {
     --side-size: 150px;
     --side-offset: 75px;
@@ -125,33 +147,64 @@ h1 {
     border: 1px inset rgba(0, 0, 0, 0.5);
 }
 
-.side-front {
-    background: rgba(255, 0, 0, 0.8);
+.original-cube .side-front {
+    background: rgba(0, 123, 255, 0.8);
     transform: rotateY(0deg) translateZ(var(--side-offset));
 }
 
-.side-back {
-    background: rgba(0, 255, 0, 0.8);
+.original-cube .side-back {
+    background: rgba(0, 123, 255, 0.8);
     transform: rotateY(180deg) translateZ(var(--side-offset));
 }
 
-.side-top {
-    background: rgba(0, 0, 255, 0.8);
+.original-cube .side-top {
+    background: rgba(0, 123, 255, 0.8);
     transform: rotateX(90deg) translateZ(var(--side-offset));
 }
 
-.side-bottom {
-    background: rgba(255, 255, 0, 0.8);
+.original-cube .side-bottom {
+    background: rgba(0, 123, 255, 0.8);
     transform: rotateX(-90deg) translateZ(var(--side-offset));
 }
 
-.side-left {
-    background: rgba(255, 0, 255, 0.8);
+.original-cube .side-left {
+    background: rgba(0, 123, 255, 0.8);
     transform: rotateY(-90deg) translateZ(var(--side-offset));
 }
 
-.side-right {
-    background: rgba(0, 255, 255, 0.8);
+.original-cube .side-right {
+    background: rgba(0, 123, 255, 0.8);
+    transform: rotateY(90deg) translateZ(var(--side-offset));
+}
+
+/* Transformed cube sides - red theme */
+.transformed-cube .side-front {
+    background: rgba(255, 107, 107, 0.8);
+    transform: rotateY(0deg) translateZ(var(--side-offset));
+}
+
+.transformed-cube .side-back {
+    background: rgba(255, 107, 107, 0.8);
+    transform: rotateY(180deg) translateZ(var(--side-offset));
+}
+
+.transformed-cube .side-top {
+    background: rgba(255, 107, 107, 0.8);
+    transform: rotateX(90deg) translateZ(var(--side-offset));
+}
+
+.transformed-cube .side-bottom {
+    background: rgba(255, 107, 107, 0.8);
+    transform: rotateX(-90deg) translateZ(var(--side-offset));
+}
+
+.transformed-cube .side-left {
+    background: rgba(255, 107, 107, 0.8);
+    transform: rotateY(-90deg) translateZ(var(--side-offset));
+}
+
+.transformed-cube .side-right {
+    background: rgba(255, 107, 107, 0.8);
     transform: rotateY(90deg) translateZ(var(--side-offset));
 }
 
@@ -254,11 +307,30 @@ button:hover {
     margin: 0 5px;
 }
 
+.matrix-input-container {
+    margin: 10px 0;
+    font-size: 11px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    background: #f8f9fa;
+}
+
 .matrix-row {
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin: 5px 0;
+    margin: 3px 0;
+    gap: 5px;
+}
+
+.matrix-row input[type="number"] {
+    flex: 1;
+    width: 50px;
+    padding: 4px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 11px;
+    text-align: center;
 }
 
 .matrix-element {
