@@ -80,6 +80,48 @@
         color: #666;
         font-size: 0.9em;
       }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        .container {
+          padding: 20px;
+          margin: 10px;
+        }
+        h1 {
+          font-size: 2em;
+          margin-bottom: 20px;
+        }
+        .description {
+          font-size: 1em;
+          margin-bottom: 30px;
+        }
+        .version-cards {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          margin-top: 30px;
+        }
+        .version-card {
+          padding: 20px;
+        }
+        .version-card h2 {
+          font-size: 1.3em;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.8em;
+        }
+        .container {
+          padding: 15px;
+        }
+        .version-card {
+          padding: 15px;
+        }
+      }
     </style>
   </head>
   <body>
