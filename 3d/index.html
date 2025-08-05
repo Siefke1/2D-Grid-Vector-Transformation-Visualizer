@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Grid & Vector Transformation Visualizer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+        .demo-output {
+            width: 800px;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: #f8f9fa;
+            overflow: hidden;
+            position: relative;
+        }
+        .demo-output__container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1600px;
+            transform-style: preserve-3d;
+            transform: rotate3d(-1, 1, 0, 30deg);
+            transition: transform 200ms ease;
+        }
+        .demo-element {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+        }
+        .side {
+            --side-size: 150px;
+            --side-offset: 75px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: var(--side-size);
+            height: var(--side-size);
+            color: white;
+            font-size: 32px;
+            border: 1px inset rgba(0, 0, 0, 0.5);
+        }
+        .side-front {
+            background: rgba(255, 0, 0, 0.8);
+            transform: rotateY(0deg) translateZ(var(--side-offset));
+        }
+        .side-back {
+            background: rgba(0, 255, 0, 0.8);
+            transform: rotateY(180deg) translateZ(var(--side-offset));
+        }
+        .side-top {
+            background: rgba(0, 0, 255, 0.8);
+            transform: rotateX(90deg) translateZ(var(--side-offset));
+        }
+        .side-bottom {
+            background: rgba(255, 255, 0, 0.8);
+            transform: rotateX(-90deg) translateZ(var(--side-offset));
+        }
+        .side-left {
+            background: rgba(255, 0, 255, 0.8);
+            transform: rotateY(-90deg) translateZ(var(--side-offset));
+        }
+        .side-right {
+            background: rgba(0, 255, 255, 0.8);
+            transform: rotateY(90deg) translateZ(var(--side-offset));
+        }
+        .axial-line {
+            position: absolute;
+            width: 200%;
+            height: 0px;
+            background: transparent;
+            border: 1px dashed rgba(0, 0, 0, .5);
+            margin: 0;
+            padding: 0;
+        }
+        .axial-line--x {
+            transform: rotateX(0deg);
+        }
+        .axial-line--y {
+            transform: rotateZ(90deg);
+        }
+        .axial-line--z {
+            transform: rotateY(90deg);
+        }
+        .view-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .view-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 12px;
+        }
+        .view-controls button:hover {
+            background: #0056b3;
+        }
+        .view-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .control-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            min-width: 0;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            margin: 2px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .determinant-display {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .matrix-display {
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        .matrix-bracket {
+            font-size: 24px;
+            color: #495057;
+            margin: 0 5px;
+        }
+        
+        .matrix-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .matrix-element {
+            display: inline-block;
+            width: 60px;
+            text-align: center;
+            margin: 0 10px;
+        }
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .preset-btn {
+            background: #28a745;
+        }
+        .preset-btn:hover {
+            background: #1e7e34;
+        }
+        .vector-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        .rotation-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+        .rotation-group {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .rotation-group h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rotation-group input[type="range"] {
+            width: 100%;
+            max-width: 100%;
+        }
+        .rotation-group span {
+            display: block;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        .camera-controls {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .camera-controls h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #856404;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .transform-code {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Back to Navigation</a>
+        <h1>3D Grid & Vector Transformation Visualizer</h1>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #007bff;"></div>
+                <span>3D Cube</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff6b6b;"></div>
+                <span>Transformed Cube</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #28a745;"></div>
+                <span>Coordinate Axes</span>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="demo-output">
+                <div class="demo-output__container" id="demo__container">
+                    <div class="demo-element" id="demo-element">
+                        <div class="side side-back">3</div>
+                        <div class="side side-bottom">6</div>
+                        <div class="side side-right">2</div>
+                        <div class="side side-left">4</div>
+                        <div class="side side-front">1</div>
+                        <div class="side side-top">5</div>
+                    </div>
+                    <p class="axial-line axial-line--x"></p>
+                    <p class="axial-line axial-line--y"></p>
+                    <p class="axial-line axial-line--z"></p>
+                </div>
+                <div class="view-controls">
+                    <button onclick="resetView()">Reset View</button>
+                    <div class="view-info" id="viewInfo">Camera: (0, 0, 8)</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="transform-code" id="transformCode">
+transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>Transformation Matrix (3x3)</h3>
+                <div>
+                    <input type="number" id="a11" value="1" step="0.1" onchange="applyTransformation()"> <input type="number" id="a12" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a13" value="0" step="0.1" onchange="applyTransformation()"><br>
+                    <input type="number" id="a21" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a22" value="1" step="0.1" onchange="applyTransformation()"> <input type="number" id="a23" value="0" step="0.1" onchange="applyTransformation()"><br>
+                    <input type="number" id="a31" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a32" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a33" value="1" step="0.1" onchange="applyTransformation()">
+                </div>
+                <div class="matrix-display" id="matrixDisplay">
+                    [1.00  0.00  0.00]<br>
+                    [0.00  1.00  0.00]<br>
+                    [0.00  0.00  1.00]
+                </div>
+                <div class="determinant-display" id="determinantDisplay">
+                    Determinant: 1.00
+                </div>
+                <button onclick="resetGrid()">Reset</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>Camera Controls</h3>
+                <div class="camera-controls">
+                    <h4>Camera Position</h4>
+                    <label>X: <input type="number" id="cameraX" value="0" step="0.5" onchange="updateCamera()"></label>
+                    <label>Y: <input type="number" id="cameraY" value="0" step="0.5" onchange="updateCamera()"></label>
+                    <label>Z: <input type="number" id="cameraZ" value="8" step="0.5" onchange="updateCamera()"></label>
+                </div>
+                <div class="rotation-controls">
+                    <div class="rotation-group">
+                        <h4>Camera Rotation X</h4>
+                        <input type="range" id="cameraRotX" min="-360" max="360" value="30" step="1" oninput="updateCamera()">
+                        <span id="cameraRotXValue">30°</span>
+                    </div>
+                    <div class="rotation-group">
+                        <h4>Camera Rotation Y</h4>
+                        <input type="range" id="cameraRotY" min="-360" max="360" value="45" step="1" oninput="updateCamera()">
+                        <span id="cameraRotYValue">45°</span>
+                    </div>
+                    <div class="rotation-group">
+                        <h4>Camera Rotation Z</h4>
+                        <input type="range" id="cameraRotZ" min="-360" max="360" value="0" step="1" oninput="updateCamera()">
+                        <span id="cameraRotZValue">0°</span>
+                    </div>
+                </div>
+                <button onclick="resetCamera()" style="margin-top: 10px;">Reset Camera</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>Object Rotation</h3>
+                <div class="rotation-controls">
+                    <div class="rotation-group">
+                        <h4>X-Axis Rotation</h4>
+                        <input type="range" id="rotX" min="0" max="360" value="0" step="1" oninput="applyRotation()">
+                        <span id="rotXValue">0°</span>
+                    </div>
+                    <div class="rotation-group">
+                        <h4>Y-Axis Rotation</h4>
+                        <input type="range" id="rotY" min="0" max="360" value="0" step="1" oninput="applyRotation()">
+                        <span id="rotYValue">0°</span>
+                    </div>
+                    <div class="rotation-group">
+                        <h4>Z-Axis Rotation</h4>
+                        <input type="range" id="rotZ" min="0" max="360" value="0" step="1" oninput="applyRotation()">
+                        <span id="rotZValue">0°</span>
+                    </div>
+                    <div class="rotation-group">
+                        <h4>Scale</h4>
+                        <input type="range" id="scale" min="0.1" max="3" value="1" step="0.1" oninput="applyRotation()">
+                        <span id="scaleValue">1.0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Preset Transformations</h3>
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="setPreset('identity')">Identity</button>
+                    <button class="preset-btn" onclick="setPreset('rotationX90')">X-Rotation 90°</button>
+                    <button class="preset-btn" onclick="setPreset('rotationY90')">Y-Rotation 90°</button>
+                    <button class="preset-btn" onclick="setPreset('rotationZ90')">Z-Rotation 90°</button>
+                    <button class="preset-btn" onclick="setPreset('scaling')">Scaling (2x)</button>
+                    <button class="preset-btn" onclick="setPreset('shear')">Shear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const demoElement = document.getElementById('demo-element');
+        const demoContainer = document.getElementById('demo__container');
+        const transformCode = document.getElementById('transformCode');
+        
+        let currentMatrix = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ];
+        
+        function createRotationX(angle) {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            return [
+                [1, 0, 0],
+                [0, cos, -sin],
+                [0, sin, cos]
+            ];
+        }
+        
+        function createRotationY(angle) {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            return [
+                [cos, 0, sin],
+                [0, 1, 0],
+                [-sin, 0, cos]
+            ];
+        }
+        
+        function createRotationZ(angle) {
+            const rad = angle * Math.PI / 180;
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            return [
+                [cos, -sin, 0],
+                [sin, cos, 0],
+                [0, 0, 1]
+            ];
+        }
+        
+        function createScalingMatrix(s) {
+            return [
+                [s, 0, 0],
+                [0, s, 0],
+                [0, 0, s]
+            ];
+        }
+        
+        function multiplyMatrices(a, b) {
+            const result = [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0]
+            ];
+            
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    for (let k = 0; k < 3; k++) {
+                        result[i][j] += a[i][k] * b[k][j];
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        function calculateDeterminant(matrix) {
+            const [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]] = matrix;
+            return a11 * (a22 * a33 - a23 * a32) - 
+                   a12 * (a21 * a33 - a23 * a31) + 
+                   a13 * (a21 * a32 - a22 * a31);
+        }
+        
+        function matrix3x3ToMatrix3d(matrix) {
+            const [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]] = matrix;
+            return [
+                a11, a21, a31, 0,
+                a12, a22, a32, 0,
+                a13, a23, a33, 0,
+                0, 0, 0, 1
+            ];
+        }
+        
+        function applyTransformation() {
+            const a11 = parseFloat(document.getElementById('a11').value);
+            const a12 = parseFloat(document.getElementById('a12').value);
+            const a13 = parseFloat(document.getElementById('a13').value);
+            const a21 = parseFloat(document.getElementById('a21').value);
+            const a22 = parseFloat(document.getElementById('a22').value);
+            const a23 = parseFloat(document.getElementById('a23').value);
+            const a31 = parseFloat(document.getElementById('a31').value);
+            const a32 = parseFloat(document.getElementById('a32').value);
+            const a33 = parseFloat(document.getElementById('a33').value);
+            
+            currentMatrix = [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]];
+            updateMatrixDisplay();
+            applyMatrix3d();
+        }
+        
+        function applyRotation() {
+            const rotX = parseInt(document.getElementById('rotX').value);
+            const rotY = parseInt(document.getElementById('rotY').value);
+            const rotZ = parseInt(document.getElementById('rotZ').value);
+            const scaleVal = parseFloat(document.getElementById('scale').value);
+            
+            // Update display values
+            document.getElementById('rotXValue').textContent = rotX + '°';
+            document.getElementById('rotYValue').textContent = rotY + '°';
+            document.getElementById('rotZValue').textContent = rotZ + '°';
+            document.getElementById('scaleValue').textContent = scaleVal;
+            
+            const rotXMatrix = createRotationX(rotX);
+            const rotYMatrix = createRotationY(rotY);
+            const rotZMatrix = createRotationZ(rotZ);
+            const scaleMatrix = createScalingMatrix(scaleVal);
+            
+            // Combine rotations and scaling
+            let combinedMatrix = multiplyMatrices(rotXMatrix, rotYMatrix);
+            combinedMatrix = multiplyMatrices(combinedMatrix, rotZMatrix);
+            combinedMatrix = multiplyMatrices(combinedMatrix, scaleMatrix);
+            
+            currentMatrix = combinedMatrix;
+            
+            // Update input fields
+            document.getElementById('a11').value = combinedMatrix[0][0];
+            document.getElementById('a12').value = combinedMatrix[0][1];
+            document.getElementById('a13').value = combinedMatrix[0][2];
+            document.getElementById('a21').value = combinedMatrix[1][0];
+            document.getElementById('a22').value = combinedMatrix[1][1];
+            document.getElementById('a23').value = combinedMatrix[1][2];
+            document.getElementById('a31').value = combinedMatrix[2][0];
+            document.getElementById('a32').value = combinedMatrix[2][1];
+            document.getElementById('a33').value = combinedMatrix[2][2];
+            
+            updateMatrixDisplay();
+            applyMatrix3d();
+        }
+        
+        function applyMatrix3d() {
+            const matrix3d = matrix3x3ToMatrix3d(currentMatrix);
+            const transform = `matrix3d(${matrix3d.join(', ')})`;
+            demoElement.style.transform = transform;
+            transformCode.textContent = `transform: ${transform}`;
+        }
+        
+        function resetGrid() {
+            currentMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+            document.getElementById('a11').value = 1;
+            document.getElementById('a12').value = 0;
+            document.getElementById('a13').value = 0;
+            document.getElementById('a21').value = 0;
+            document.getElementById('a22').value = 1;
+            document.getElementById('a23').value = 0;
+            document.getElementById('a31').value = 0;
+            document.getElementById('a32').value = 0;
+            document.getElementById('a33').value = 1;
+            
+            // Reset rotation sliders
+            document.getElementById('rotX').value = 0;
+            document.getElementById('rotY').value = 0;
+            document.getElementById('rotZ').value = 0;
+            document.getElementById('scale').value = 1;
+            document.getElementById('rotXValue').textContent = '0°';
+            document.getElementById('rotYValue').textContent = '0°';
+            document.getElementById('rotZValue').textContent = '0°';
+            document.getElementById('scaleValue').textContent = '1.0';
+            
+            updateMatrixDisplay();
+            applyMatrix3d();
+        }
+        
+        function updateMatrixDisplay() {
+            const [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]] = currentMatrix;
+            const determinant = calculateDeterminant(currentMatrix);
+            
+            const vectorX = 1, vectorY = 1, vectorZ = 1;
+            const transformedX = a11 * vectorX + a12 * vectorY + a13 * vectorZ;
+            const transformedY = a21 * vectorX + a22 * vectorY + a23 * vectorZ;
+            const transformedZ = a31 * vectorX + a32 * vectorY + a33 * vectorZ;
+            
+            document.getElementById('matrixDisplay').innerHTML = 
+                `<div class="matrix-display">
+                    <div style="margin-bottom: 10px; font-weight: bold; color: #495057;">Transformation (unit cube):</div>
+                    <div style="font-family: 'Courier New', monospace; line-height: 1.8; text-align: center;">
+                        <div>Input: [1, 1, 1]</div>
+                        <div>Output: [${transformedX.toFixed(1)}, ${transformedY.toFixed(1)}, ${transformedZ.toFixed(1)}]</div>
+                    </div>
+                </div>`;
+            
+            document.getElementById('determinantDisplay').innerHTML = 
+                `Determinant: ${determinant.toFixed(2)}`;
+        }
+        
+        // Set preset transformations
+        function setPreset(type) {
+            let matrix;
+            switch(type) {
+                case 'identity':
+                    matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+                    break;
+                case 'rotationX90':
+                    matrix = createRotationX(90);
+                    break;
+                case 'rotationY90':
+                    matrix = createRotationY(90);
+                    break;
+                case 'rotationZ90':
+                    matrix = createRotationZ(90);
+                    break;
+                case 'scaling':
+                    matrix = createScalingMatrix(2);
+                    break;
+                case 'shear':
+                    matrix = [[1, 1, 0], [0, 1, 0], [0, 0, 1]];
+                    break;
+            }
+            
+            currentMatrix = matrix;
+            document.getElementById('a11').value = matrix[0][0];
+            document.getElementById('a12').value = matrix[0][1];
+            document.getElementById('a13').value = matrix[0][2];
+            document.getElementById('a21').value = matrix[1][0];
+            document.getElementById('a22').value = matrix[1][1];
+            document.getElementById('a23').value = matrix[1][2];
+            document.getElementById('a31').value = matrix[2][0];
+            document.getElementById('a32').value = matrix[2][1];
+            document.getElementById('a33').value = matrix[2][2];
+            
+            updateMatrixDisplay();
+            applyMatrix3d();
+        }
+        
+        // Camera controls
+        function updateCamera() {
+            const x = parseFloat(document.getElementById('cameraX').value);
+            const y = parseFloat(document.getElementById('cameraY').value);
+            const z = parseFloat(document.getElementById('cameraZ').value);
+            const rotX = parseFloat(document.getElementById('cameraRotX').value);
+            const rotY = parseFloat(document.getElementById('cameraRotY').value);
+            const rotZ = parseFloat(document.getElementById('cameraRotZ').value);
+            
+            // Update display values
+            document.getElementById('cameraRotXValue').textContent = rotX + '°';
+            document.getElementById('cameraRotYValue').textContent = rotY + '°';
+            document.getElementById('cameraRotZValue').textContent = rotZ + '°';
+            
+            // Apply camera rotation to the container with more pronounced effect
+            // This rotates the view around the transformed object
+            demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translate3d(${x}px, ${y}px, ${z}px)`;
+            document.getElementById('viewInfo').textContent = `Camera: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`;
+        }
+
+        function resetCamera() {
+            document.getElementById('cameraX').value = 0;
+            document.getElementById('cameraY').value = 0;
+            document.getElementById('cameraZ').value = 8;
+            document.getElementById('cameraRotX').value = 30;
+            document.getElementById('cameraRotY').value = 45;
+            document.getElementById('cameraRotZ').value = 0;
+            updateCamera();
+        }
+        
+        function resetView() {
+            document.getElementById('cameraX').value = 0;
+            document.getElementById('cameraY').value = 0;
+            document.getElementById('cameraZ').value = 8;
+            document.getElementById('cameraRotX').value = 30;
+            document.getElementById('cameraRotY').value = 45;
+            document.getElementById('cameraRotZ').value = 0;
+            updateCamera();
+        }
+        
+        // Mouse controls for 3D navigation
+        let isMouseDown = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        
+        demoContainer.addEventListener('mousedown', function(e) {
+            isMouseDown = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            demoContainer.style.cursor = 'grabbing';
+        });
+        
+        demoContainer.addEventListener('mousemove', function(e) {
+            if (isMouseDown) {
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                
+                // Update rotation values
+                const currentRotY = parseFloat(document.getElementById('cameraRotY').value);
+                const currentRotX = parseFloat(document.getElementById('cameraRotX').value);
+                
+                document.getElementById('cameraRotY').value = currentRotY + deltaX * 0.5;
+                document.getElementById('cameraRotX').value = currentRotX + deltaY * 0.5;
+                
+                updateCamera();
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            }
+        });
+        
+        demoContainer.addEventListener('mouseup', function(e) {
+            isMouseDown = false;
+            demoContainer.style.cursor = 'grab';
+        });
+        
+        demoContainer.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            const currentZ = parseFloat(document.getElementById('cameraZ').value);
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            document.getElementById('cameraZ').value = currentZ * zoomFactor;
+            updateCamera();
+        });
+        
+        window.onload = function() {
+            updateMatrixDisplay();
+            applyMatrix3d();
+            updateCamera();
+        };
+    </script>
+</body>
+</html> 

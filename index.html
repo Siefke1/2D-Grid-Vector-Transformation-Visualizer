@@ -1,596 +1,118 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Grid & Vector Transformation Visualizer</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Linear Transformation Visualizer</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-            position: relative;
-        }
-        canvas {
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            background: #f8f9fa;
-            cursor: grab;
-        }
-        canvas:active {
-            cursor: grabbing;
-        }
-        .zoom-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .zoom-controls button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin: 2px;
-            font-size: 12px;
-        }
-        .zoom-controls button:hover {
-            background: #0056b3;
-        }
-        .zoom-info {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .control-group {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e9ecef;
-        }
-        .control-group h3 {
-            margin-top: 0;
-            color: #495057;
-        }
-        input[type="number"] {
-            width: 60px;
-            padding: 5px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            margin: 2px;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        .matrix-display {
-            font-family: monospace;
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .determinant-display {
-            font-family: monospace;
-            background: #f8d7da;
-            color: #721c24;
-            padding: 8px;
-            border-radius: 5px;
-            margin: 5px 0;
-            font-weight: bold;
-        }
-        .preset-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .preset-btn {
-            background: #28a745;
-        }
-        .preset-btn:hover {
-            background: #1e7e34;
-        }
-        .vector-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-        }
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+      .description {
+        color: #666;
+        margin-bottom: 40px;
+        font-size: 1.1em;
+        line-height: 1.6;
+      }
+      .version-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 40px;
+      }
+      .version-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+      }
+      .version-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        border-color: #007bff;
+      }
+      .version-card h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+      }
+      .version-card p {
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.5;
+      }
+      .version-badge {
+        display: inline-block;
+        background: #007bff;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        margin-bottom: 15px;
+      }
+      .footer {
+        margin-top: 40px;
+        color: #666;
+        font-size: 0.9em;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>2D Grid & Vector Transformation Visualizer</h1>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: #007bff;"></div>
-                <span>Original Grid</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #ff6b6b;"></div>
-                <span>Transformed Grid</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #28a745;"></div>
-                <span>Vector</span>
-            </div>
-        </div>
-        
-        <div class="canvas-container">
-            <canvas id="gridCanvas" width="800" height="600"></canvas>
-            <div class="zoom-controls">
-                <button onclick="zoomIn()">+</button>
-                <button onclick="zoomOut()">-</button>
-                <button onclick="resetView()">Reset View</button>
-                <div class="zoom-info" id="zoomInfo">Zoom: 1.00x</div>
-            </div>
-        </div>
-        
-        <div class="controls">
-            <div class="control-group">
-                <h3>Vector Input</h3>
-                <div class="vector-input">
-                    <label>X: <input type="number" id="vectorX" value="2" step="0.1"></label>
-                    <label>Y: <input type="number" id="vectorY" value="1" step="0.1"></label>
-                    <button onclick="updateVector()">Update Vector</button>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <h3>Transformation Matrix</h3>
-                <div>
-                    <input type="number" id="a11" value="1" step="0.1"> <input type="number" id="a12" value="0" step="0.1"><br>
-                    <input type="number" id="a21" value="0" step="0.1"> <input type="number" id="a22" value="1" step="0.1">
-                </div>
-                <div class="matrix-display" id="matrixDisplay">
-                    [1  0]<br>
-                    [0  1]
-                </div>
-                <div class="determinant-display" id="determinantDisplay">
-                    Determinant: 1.00
-                </div>
-                <button onclick="applyTransformation()">Apply Transformation</button>
-                <button onclick="resetGrid()">Reset</button>
-            </div>
-            
-            <div class="control-group">
-                <h3>Preset Transformations</h3>
-                <div class="preset-buttons">
-                    <button class="preset-btn" onclick="setPreset('identity')">Identity</button>
-                    <button class="preset-btn" onclick="setPreset('rotation90')">Rotation 90°</button>
-                    <button class="preset-btn" onclick="setPreset('rotation45')">Rotation 45°</button>
-                    <button class="preset-btn" onclick="setPreset('scaling')">Scaling (2x)</button>
-                    <button class="preset-btn" onclick="setPreset('shear')">Shear</button>
-                    <button class="preset-btn" onclick="setPreset('reflection')">Reflection</button>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <h3>Grid Settings</h3>
-                <label>Grid Size: <input type="number" id="gridSize" value="8" min="3" max="15"></label><br>
-                <label>Grid Spacing: <input type="number" id="gridSpacing" value="50" min="30" max="100"></label><br>
-                <button onclick="updateGrid()">Update Grid</button>
-            </div>
-        </div>
-    </div>
+      <h1>Linear Transformation Visualizer</h1>
+      <p class="description">
+        Interactive visualization tools for exploring linear transformations in
+        2D and 3D space in order to better understand how matrices transform
+        vectors and grids through real-time visual feedback.
+      </p>
 
-    <script>
-        const canvas = document.getElementById('gridCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Viewport transformation variables
-        let viewport = {
-            scale: 1.0,
-            offsetX: 0,
-            offsetY: 0,
-            isDragging: false,
-            lastX: 0,
-            lastY: 0
-        };
-        
-        let gridPoints = [];
-        let transformedPoints = [];
-        let currentMatrix = [[1, 0], [0, 1]];
-        let currentVector = [2, 1];
-        let transformedVector = [2, 1];
-        
-        // Convert screen coordinates to world coordinates
-        function screenToWorld(screenX, screenY) {
-            // Remove the canvas center offset first, then the viewport offset, then scale
-            const worldX = (screenX - canvas.width / 2 - viewport.offsetX) / viewport.scale;
-            const worldY = -(screenY - canvas.height / 2 - viewport.offsetY) / viewport.scale;
-            return [worldX, worldY];
-        }
-        
-        // Convert world coordinates to screen coordinates
-        function worldToScreen(worldX, worldY) {
-            const screenX = worldX * viewport.scale + viewport.offsetX + canvas.width / 2;
-            const screenY = -worldY * viewport.scale + viewport.offsetY + canvas.height / 2;
-            return [screenX, screenY];
-        }
-        
-        // Apply viewport transformation to context
-        function applyViewportTransform() {
-            ctx.save();
-            // First translate to center the coordinate system
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            // Then apply the viewport offset and scale
-            ctx.translate(viewport.offsetX, viewport.offsetY);
-            ctx.scale(viewport.scale, -viewport.scale); // Flip Y-axis for mathematical coordinates
-        }
-        
-        // Restore context after viewport transformation
-        function restoreViewportTransform() {
-            ctx.restore();
-        }
-        
-        // Zoom functions
-        function zoomIn() {
-            viewport.scale *= 1.2;
-            updateZoomInfo();
-            drawGrid();
-        }
-        
-        function zoomOut() {
-            viewport.scale /= 1.2;
-            updateZoomInfo();
-            drawGrid();
-        }
-        
-        function resetView() {
-            viewport.scale = 1.0;
-            viewport.offsetX = 0;
-            viewport.offsetY = 0;
-            updateZoomInfo();
-            drawGrid();
-        }
-        
-        function updateZoomInfo() {
-            document.getElementById('zoomInfo').textContent = `Zoom: ${viewport.scale.toFixed(2)}x`;
-        }
-        
-        function transformPoint(point, matrix) {
-            const [x, y] = point;
-            const [[a, b], [c, d]] = matrix;
-            return [a * x + b * y, c * x + d * y];
-        }
-        
-        // Draw arrow
-        function drawArrow(startX, startY, endX, endY, color, lineWidth = 3) {
-            const headLength = 15 / viewport.scale;
-            const angle = Math.atan2(endY - startY, endX - startX);
-            
-            ctx.strokeStyle = color;
-            ctx.fillStyle = color;
-            ctx.lineWidth = lineWidth / viewport.scale;
-            
-            // Draw line
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(endX, endY);
-            ctx.stroke();
-            
-            // Draw arrow head
-            ctx.beginPath();
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(endX - headLength * Math.cos(angle - Math.PI / 6), 
-                      endY - headLength * Math.sin(angle - Math.PI / 6));
-            ctx.moveTo(endX, endY);
-            ctx.lineTo(endX - headLength * Math.cos(angle + Math.PI / 6), 
-                      endY - headLength * Math.sin(angle + Math.PI / 6));
-            ctx.stroke();
-        }
-        
-        function initializeGrid() {
-            const gridSize = parseInt(document.getElementById('gridSize').value);
-            const spacing = parseInt(document.getElementById('gridSpacing').value);
-            
-            gridPoints = [];
-            for (let i = -gridSize; i <= gridSize; i++) {
-                for (let j = -gridSize; j <= gridSize; j++) {
-                    gridPoints.push([i * spacing, j * spacing]);
-                }
-            }
-            updateTransformedPoints();
-            updateTransformedVector();
-            drawGrid();
-        }
-        
-        function updateTransformedPoints() {
-            transformedPoints = gridPoints.map(point => transformPoint(point, currentMatrix));
-        }
-        
-        function updateTransformedVector() {
-            transformedVector = transformPoint(currentVector, currentMatrix);
-        }
-        
-        function drawGrid() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            applyViewportTransform();
-            
-            // Draw coordinate axes
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2 / viewport.scale;
-            ctx.beginPath();
-            // X-axis (horizontal line through origin)
-            ctx.moveTo(-canvas.width / viewport.scale, 0);
-            ctx.lineTo(canvas.width / viewport.scale, 0);
-            // Y-axis (vertical line through origin)
-            ctx.moveTo(0, -canvas.height / viewport.scale);
-            ctx.lineTo(0, canvas.height / viewport.scale);
-            ctx.stroke();
-            
-            // Draw original grid lines
-            ctx.strokeStyle = '#007bff';
-            ctx.lineWidth = 1 / viewport.scale;
-            const spacing = parseInt(document.getElementById('gridSpacing').value);
-            const gridSize = parseInt(document.getElementById('gridSize').value);
-            
-            // Draw vertical lines
-            for (let i = -gridSize; i <= gridSize; i++) {
-                const x = i * spacing;
-                ctx.beginPath();
-                ctx.moveTo(x, -gridSize * spacing);
-                ctx.lineTo(x, gridSize * spacing);
-                ctx.stroke();
-            }
-            
-            // Draw horizontal lines
-            for (let j = -gridSize; j <= gridSize; j++) {
-                const y = j * spacing;
-                ctx.beginPath();
-                ctx.moveTo(-gridSize * spacing, y);
-                ctx.lineTo(gridSize * spacing, y);
-                ctx.stroke();
-            }
-            
-            // Draw transformed grid lines
-            ctx.strokeStyle = '#ff6b6b';
-            ctx.lineWidth = 1 / viewport.scale;
-            
-            // Draw transformed vertical lines
-            for (let i = -gridSize; i <= gridSize; i++) {
-                const originalX = i * spacing;
-                const transformedStart = transformPoint([originalX, -gridSize * spacing], currentMatrix);
-                const transformedEnd = transformPoint([originalX, gridSize * spacing], currentMatrix);
-                
-                ctx.beginPath();
-                ctx.moveTo(transformedStart[0], transformedStart[1]);
-                ctx.lineTo(transformedEnd[0], transformedEnd[1]);
-                ctx.stroke();
-            }
-            
-            // Draw transformed horizontal lines
-            for (let j = -gridSize; j <= gridSize; j++) {
-                const originalY = j * spacing;
-                const transformedStart = transformPoint([-gridSize * spacing, originalY], currentMatrix);
-                const transformedEnd = transformPoint([gridSize * spacing, originalY], currentMatrix);
-                
-                ctx.beginPath();
-                ctx.moveTo(transformedStart[0], transformedStart[1]);
-                ctx.lineTo(transformedEnd[0], transformedEnd[1]);
-                ctx.stroke();
-            }
-            
-            // Draw original vector
-            const vectorStartX = 0;
-            const vectorStartY = 0;
-            const vectorEndX = currentVector[0] * spacing;
-            const vectorEndY = currentVector[1] * spacing;
-            drawArrow(vectorStartX, vectorStartY, vectorEndX, vectorEndY, '#28a745', 4);
-            
-            // Draw transformed vector
-            const transformedVectorStartX = 0;
-            const transformedVectorStartY = 0;
-            const transformedVectorEndX = transformedVector[0] * spacing;
-            const transformedVectorEndY = transformedVector[1] * spacing;
-            drawArrow(transformedVectorStartX, transformedVectorStartY, 
-                     transformedVectorEndX, transformedVectorEndY, '#ffc107', 4);
-            
-            restoreViewportTransform();
-        }
-        
-        // Mouse event handlers for pan and zoom
-        canvas.addEventListener('mousedown', function(e) {
-            viewport.isDragging = true;
-            viewport.lastX = e.clientX;
-            viewport.lastY = e.clientY;
-        });
-        
-        canvas.addEventListener('mousemove', function(e) {
-            if (viewport.isDragging) {
-                const deltaX = e.clientX - viewport.lastX;
-                const deltaY = e.clientY - viewport.lastY;
-                viewport.offsetX += deltaX;
-                viewport.offsetY += deltaY;
-                viewport.lastX = e.clientX;
-                viewport.lastY = e.clientY;
-                drawGrid();
-            }
-        });
-        
-        canvas.addEventListener('mouseup', function(e) {
-            viewport.isDragging = false;
-        });
-        
-        canvas.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            
-            // Convert mouse position to world coordinates
-            const [worldX, worldY] = screenToWorld(mouseX, mouseY);
-            
-            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-            viewport.scale *= zoomFactor;
-            
-            // Adjust offset to zoom towards mouse position
-            const [newScreenX, newScreenY] = worldToScreen(worldX, worldY);
-            viewport.offsetX += mouseX - newScreenX;
-            viewport.offsetY += mouseY - newScreenY;
-            
-            updateZoomInfo();
-            drawGrid();
-        });
-        
-        function updateVector() {
-            const x = parseFloat(document.getElementById('vectorX').value);
-            const y = parseFloat(document.getElementById('vectorY').value);
-            currentVector = [x, y];
-            updateTransformedVector();
-            drawGrid();
-        }
-        
-        function applyTransformation() {
-            const a11 = parseFloat(document.getElementById('a11').value);
-            const a12 = parseFloat(document.getElementById('a12').value);
-            const a21 = parseFloat(document.getElementById('a21').value);
-            const a22 = parseFloat(document.getElementById('a22').value);
-            
-            currentMatrix = [[a11, a12], [a21, a22]];
-            updateTransformedPoints();
-            updateTransformedVector();
-            drawGrid();
-            updateMatrixDisplay();
-        }
-        
-        function resetGrid() {
-            currentMatrix = [[1, 0], [0, 1]];
-            document.getElementById('a11').value = 1;
-            document.getElementById('a12').value = 0;
-            document.getElementById('a21').value = 0;
-            document.getElementById('a22').value = 1;
-            updateTransformedPoints();
-            updateTransformedVector();
-            drawGrid();
-            updateMatrixDisplay();
-        }
-        
-        function updateGrid() {
-            initializeGrid();
-        }
-        
-        function calculateDeterminant(matrix) {
-            const [[a11, a12], [a21, a22]] = matrix;
-            return a11 * a22 - a12 * a21;
-        }
-        
-        function updateMatrixDisplay() {
-            const [[a11, a12], [a21, a22]] = currentMatrix;
-            const determinant = calculateDeterminant(currentMatrix);
-            
-            document.getElementById('matrixDisplay').innerHTML = 
-                `[${a11.toFixed(2)}  ${a12.toFixed(2)}]<br>[${a21.toFixed(2)}  ${a22.toFixed(2)}]`;
-            
-            document.getElementById('determinantDisplay').innerHTML = 
-                `Determinant: ${determinant.toFixed(2)}`;
-        }
-        
-        function setPreset(type) {
-            let matrix;
-            switch(type) {
-                case 'identity':
-                    matrix = [[1, 0], [0, 1]];
-                    break;
-                case 'rotation90':
-                    matrix = [[0, -1], [1, 0]];
-                    break;
-                case 'rotation45':
-                    const cos45 = Math.cos(Math.PI / 4);
-                    const sin45 = Math.sin(Math.PI / 4);
-                    matrix = [[cos45, -sin45], [sin45, cos45]];
-                    break;
-                case 'scaling':
-                    matrix = [[2, 0], [0, 2]];
-                    break;
-                case 'shear':
-                    matrix = [[1, 1], [0, 1]];
-                    break;
-                case 'reflection':
-                    matrix = [[-1, 0], [0, 1]];
-                    break;
-            }
-            
-            currentMatrix = matrix;
-            document.getElementById('a11').value = matrix[0][0];
-            document.getElementById('a12').value = matrix[0][1];
-            document.getElementById('a21').value = matrix[1][0];
-            document.getElementById('a22').value = matrix[1][1];
-            
-            updateTransformedPoints();
-            updateTransformedVector();
-            drawGrid();
-            updateMatrixDisplay();
-        }
-        
-        // Initialize the application
-        window.onload = function() {
-            initializeGrid();
-            updateMatrixDisplay();
-            updateZoomInfo();
-        };
-    </script>
-</body>
+      <div class="version-cards">
+        <a href="2d/index.html" class="version-card">
+          <div class="version-badge">2D Version</div>
+          <h2>2D Transformations</h2>
+          <p>Fundamentals of linear algebra and matrix transformations.</p>
+        </a>
+
+        <a href="3d/index.html" class="version-card">
+          <div class="version-badge">3D Version</div>
+          <h2>3D Transformations</h2>
+          <p>
+            Advanced 3D transformations with rotation controls and 3×3 matrices.
+          </p>
+        </a>
+      </div>
+
+      <div class="footer">
+        <p>
+          © 2025
+          <a href="https://github.com/siefke1" target="_blank">siefke1</a>
+        </p>
+      </div>
+    </div>
+  </body>
 </html>
-    
