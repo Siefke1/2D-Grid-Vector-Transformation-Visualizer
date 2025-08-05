@@ -26,33 +26,8 @@
             </div>
         </div>
         
-        <div class="canvas-container">
-            <div class="demo-output">
-                <div class="demo-output__container" id="demo__container">
-                    <div class="demo-element" id="demo-element">
-                        <div class="side side-back">3</div>
-                        <div class="side side-bottom">6</div>
-                        <div class="side side-right">2</div>
-                        <div class="side side-left">4</div>
-                        <div class="side side-front">1</div>
-                        <div class="side side-top">5</div>
-                    </div>
-                    <p class="axial-line axial-line--x"></p>
-                    <p class="axial-line axial-line--y"></p>
-                    <p class="axial-line axial-line--z"></p>
-                </div>
-                <div class="view-controls">
-                    <button onclick="resetView()">Reset View</button>
-                    <div class="view-info" id="viewInfo">Camera: (0, 0, 8)</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="transform-code" id="transformCode">
-transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
-        </div>
-        
-        <div class="controls">
+        <div class="main-layout">
+            <div class="controls">
             <div class="control-group">
                 <h3>Transformation Matrix (3x3)</h3>
                 <div>
@@ -60,13 +35,11 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
                     <input type="number" id="a21" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a22" value="1" step="0.1" onchange="applyTransformation()"> <input type="number" id="a23" value="0" step="0.1" onchange="applyTransformation()"><br>
                     <input type="number" id="a31" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a32" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a33" value="1" step="0.1" onchange="applyTransformation()">
                 </div>
-                <div class="matrix-display" id="matrixDisplay">
-                    [1.00  0.00  0.00]<br>
-                    [0.00  1.00  0.00]<br>
-                    [0.00  0.00  1.00]
-                </div>
-                <div class="determinant-display" id="determinantDisplay">
-                    Determinant: 1.00
+                <div class="transformation-info" id="transformationInfo">
+                    <div>Matrix: [1.00  0.00  0.00]</div>
+                    <div>        [0.00  1.00  0.00]</div>
+                    <div>        [0.00  0.00  1.00]</div>
+                    <div>Determinant: 1.00</div>
                 </div>
                 <button onclick="resetGrid()">Reset</button>
             </div>
@@ -135,6 +108,33 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
                     <button class="preset-btn" onclick="setPreset('scaling')">Scaling (2x)</button>
                     <button class="preset-btn" onclick="setPreset('shear')">Shear</button>
                 </div>
+            </div>
+            </div>
+            
+            <div class="canvas-container">
+                <div class="demo-output">
+                    <div class="demo-output__container" id="demo__container">
+                        <div class="demo-element" id="demo-element">
+                            <div class="side side-back">3</div>
+                            <div class="side side-bottom">6</div>
+                            <div class="side side-right">2</div>
+                            <div class="side side-left">4</div>
+                            <div class="side side-front">1</div>
+                            <div class="side side-top">5</div>
+                        </div>
+                        <p class="axial-line axial-line--x"></p>
+                        <p class="axial-line axial-line--y"></p>
+                        <p class="axial-line axial-line--z"></p>
+                    </div>
+                    <div class="view-controls">
+                        <button onclick="resetView()">Reset View</button>
+                        <div class="view-info" id="viewInfo">Camera: (0, 0, 8)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="transform-code" id="transformCode">
+transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
             </div>
         </div>
     </div>
@@ -323,17 +323,17 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
             const transformedY = a21 * vectorX + a22 * vectorY + a23 * vectorZ;
             const transformedZ = a31 * vectorX + a32 * vectorY + a33 * vectorZ;
             
-            document.getElementById('matrixDisplay').innerHTML = 
-                `<div class="matrix-display">
-                    <div style="margin-bottom: 10px; font-weight: bold; color: #495057;">Transformation (unit cube):</div>
-                    <div style="font-family: 'Courier New', monospace; line-height: 1.8; text-align: center;">
-                        <div>Input: [1, 1, 1]</div>
-                        <div>Output: [${transformedX.toFixed(1)}, ${transformedY.toFixed(1)}, ${transformedZ.toFixed(1)}]</div>
-                    </div>
-                </div>`;
-            
-            document.getElementById('determinantDisplay').innerHTML = 
-                `Determinant: ${determinant.toFixed(2)}`;
+            // Update the transformation info with all information
+            const transformationInfo = document.getElementById('transformationInfo');
+            if (transformationInfo) {
+                transformationInfo.innerHTML = 
+                    `<div>Matrix: [${a11.toFixed(2)}  ${a12.toFixed(2)}  ${a13.toFixed(2)}]</div>
+                     <div>        [${a21.toFixed(2)}  ${a22.toFixed(2)}  ${a23.toFixed(2)}]</div>
+                     <div>        [${a31.toFixed(2)}  ${a32.toFixed(2)}  ${a33.toFixed(2)}]</div>
+                     <div>Input: [1, 1, 1]</div>
+                     <div>Output: [${transformedX.toFixed(1)}, ${transformedY.toFixed(1)}, ${transformedZ.toFixed(1)}]</div>
+                     <div>Determinant: ${determinant.toFixed(2)}</div>`;
+            }
         }
         
         // Set preset transformations

@@ -27,17 +27,8 @@
             </div>
         </div>
         
-        <div class="canvas-container">
-            <canvas id="gridCanvas" width="800" height="600"></canvas>
-            <div class="zoom-controls">
-                <button onclick="zoomIn()">+</button>
-                <button onclick="zoomOut()">-</button>
-                <button onclick="resetView()">Reset View</button>
-                <div class="zoom-info" id="zoomInfo">Zoom: 1.00x</div>
-            </div>
-        </div>
-        
-        <div class="controls">
+        <div class="main-layout">
+            <div class="controls">
             <div class="control-group">
                 <h3>Vector Input</h3>
                 <div class="vector-input">
@@ -52,12 +43,12 @@
                     <input type="number" id="a11" value="1" step="0.1" onchange="applyTransformation()"> <input type="number" id="a12" value="0" step="0.1" onchange="applyTransformation()"><br>
                     <input type="number" id="a21" value="0" step="0.1" onchange="applyTransformation()"> <input type="number" id="a22" value="1" step="0.1" onchange="applyTransformation()">
                 </div>
-                <div class="matrix-display" id="matrixDisplay">
-                    [1  0]<br>
-                    [0  1]
-                </div>
-                <div class="determinant-display" id="determinantDisplay">
-                    Determinant: 1.00
+                <div class="transformation-info" id="transformationInfo">
+                    <div>Matrix: [1.0 0.0]</div>
+                    <div>        [0.0 1.0]</div>
+                    <div>Input: [2.0, 1.0]</div>
+                    <div>Output: [2.0, 1.0]</div>
+                    <div>Determinant: 1.00</div>
                 </div>
                 <button onclick="resetGrid()">Reset</button>
             </div>
@@ -78,6 +69,17 @@
                 <h3>Grid Settings</h3>
                 <label>Grid Size: <input type="number" id="gridSize" value="8" min="3" max="15" onchange="updateGrid()"></label><br>
                 <label>Grid Spacing: <input type="number" id="gridSpacing" value="50" min="30" max="100" onchange="updateGrid()"></label>
+            </div>
+            </div>
+            
+            <div class="canvas-container">
+                <canvas id="gridCanvas" width="800" height="600"></canvas>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn()">+</button>
+                    <button onclick="zoomOut()">-</button>
+                    <button onclick="resetView()">Reset View</button>
+                    <div class="zoom-info" id="zoomInfo">Zoom: 1.00x</div>
+                </div>
             </div>
         </div>
     </div>
@@ -394,17 +396,16 @@
             const transformedX = a11 * vectorX + a12 * vectorY;
             const transformedY = a21 * vectorX + a22 * vectorY;
             
-            document.getElementById('matrixDisplay').innerHTML = 
-                `<div class="matrix-display">
-                    <div style="margin-bottom: 10px; font-weight: bold; color: #495057;">Transformation:</div>
-                    <div style="font-family: 'Courier New', monospace; line-height: 1.8; text-align: center;">
-                        <div>Input: [${vectorX.toFixed(1)}, ${vectorY.toFixed(1)}]</div>
-                        <div>Output: [${transformedX.toFixed(1)}, ${transformedY.toFixed(1)}]</div>
-                    </div>
-                </div>`;
-            
-            document.getElementById('determinantDisplay').innerHTML = 
-                `Determinant: ${determinant.toFixed(2)}`;
+            // Update the transformation info with all information
+            const transformationInfo = document.getElementById('transformationInfo');
+            if (transformationInfo) {
+                transformationInfo.innerHTML = 
+                    `<div>Matrix: [${a11.toFixed(1)} ${a12.toFixed(1)}]</div>
+                     <div>        [${a21.toFixed(1)} ${a22.toFixed(1)}]</div>
+                     <div>Input: [${vectorX.toFixed(1)}, ${vectorY.toFixed(1)}]</div>
+                     <div>Output: [${transformedX.toFixed(1)}, ${transformedY.toFixed(1)}]</div>
+                     <div>Determinant: ${determinant.toFixed(2)}</div>`;
+            }
         }
         
         function setPreset(type) {
