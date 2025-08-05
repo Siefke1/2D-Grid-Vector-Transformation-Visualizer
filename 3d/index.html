@@ -123,29 +123,52 @@
             </div>
             </div>
             
+            <!-- Mobile camera controls card -->
+            <div class="mobile-camera-card">
+                <h4>Camera Controls</h4>
+                <div class="mobile-camera-row">
+                    <label>X: <input type="number" id="mobileCameraX" value="0" step="0.5" onchange="updateMobileCamera()"></label>
+                    <label>Y: <input type="number" id="mobileCameraY" value="0" step="0.5" onchange="updateMobileCamera()"></label>
+                    <label>Z: <input type="number" id="mobileCameraZ" value="8" step="0.5" onchange="updateMobileCamera()"></label>
+                </div>
+                <div class="mobile-camera-row">
+                    <label>Rot X: <input type="range" id="mobileCameraRotX" min="-360" max="360" value="30" step="1" oninput="updateMobileCamera()"></label>
+                    <span id="mobileCameraRotXValue">30°</span>
+                </div>
+                <div class="mobile-camera-row">
+                    <label>Rot Y: <input type="range" id="mobileCameraRotY" min="-360" max="360" value="45" step="1" oninput="updateMobileCamera()"></label>
+                    <span id="mobileCameraRotYValue">45°</span>
+                </div>
+                <div class="mobile-camera-row">
+                    <label>Rot Z: <input type="range" id="mobileCameraRotZ" min="-360" max="360" value="0" step="1" oninput="updateMobileCamera()"></label>
+                    <span id="mobileCameraRotZValue">0°</span>
+                </div>
+                <button onclick="resetMobileCamera()">Reset Camera</button>
+            </div>
+            
             <div class="canvas-container">
                 <div class="demo-output">
-                                    <div class="demo-output__container" id="demo__container">
-                    <div class="demo-element original-cube" id="original-element">
-                        <div class="side side-back">3</div>
-                        <div class="side side-bottom">6</div>
-                        <div class="side side-right">2</div>
-                        <div class="side side-left">4</div>
-                        <div class="side side-front">1</div>
-                        <div class="side side-top">5</div>
+                    <div class="demo-output__container" id="demo__container">
+                        <div class="demo-element original-cube" id="original-element">
+                            <div class="side side-back">3</div>
+                            <div class="side side-bottom">6</div>
+                            <div class="side side-right">2</div>
+                            <div class="side side-left">4</div>
+                            <div class="side side-front">1</div>
+                            <div class="side side-top">5</div>
+                        </div>
+                        <div class="demo-element transformed-cube" id="demo-element">
+                            <div class="side side-back">3</div>
+                            <div class="side side-bottom">6</div>
+                            <div class="side side-right">2</div>
+                            <div class="side side-left">4</div>
+                            <div class="side side-front">1</div>
+                            <div class="side side-top">5</div>
+                        </div>
+                        <p class="axial-line axial-line--x"></p>
+                        <p class="axial-line axial-line--y"></p>
+                        <p class="axial-line axial-line--z"></p>
                     </div>
-                    <div class="demo-element transformed-cube" id="demo-element">
-                        <div class="side side-back">3</div>
-                        <div class="side side-bottom">6</div>
-                        <div class="side side-right">2</div>
-                        <div class="side side-left">4</div>
-                        <div class="side side-front">1</div>
-                        <div class="side side-top">5</div>
-                    </div>
-                    <p class="axial-line axial-line--x"></p>
-                    <p class="axial-line axial-line--y"></p>
-                    <p class="axial-line axial-line--z"></p>
-                </div>
                     <div class="view-controls">
                         <button onclick="resetView()">Reset View</button>
                         <div class="view-info" id="viewInfo">Camera: (0, 0, 8)</div>
@@ -422,8 +445,48 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
             document.getElementById('cameraRotYValue').textContent = rotY + '°';
             document.getElementById('cameraRotZValue').textContent = rotZ + '°';
             
+            // Sync with mobile controls
+            document.getElementById('mobileCameraX').value = x;
+            document.getElementById('mobileCameraY').value = y;
+            document.getElementById('mobileCameraZ').value = z;
+            document.getElementById('mobileCameraRotX').value = rotX;
+            document.getElementById('mobileCameraRotY').value = rotY;
+            document.getElementById('mobileCameraRotZ').value = rotZ;
+            document.getElementById('mobileCameraRotXValue').textContent = rotX + '°';
+            document.getElementById('mobileCameraRotYValue').textContent = rotY + '°';
+            document.getElementById('mobileCameraRotZValue').textContent = rotZ + '°';
+            
             // Apply camera rotation to the container with more pronounced effect
             // This rotates the view around the transformed object
+            demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translate3d(${x}px, ${y}px, ${z}px)`;
+            document.getElementById('viewInfo').textContent = `Camera: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`;
+        }
+
+        function updateMobileCamera() {
+            const x = parseFloat(document.getElementById('mobileCameraX').value);
+            const y = parseFloat(document.getElementById('mobileCameraY').value);
+            const z = parseFloat(document.getElementById('mobileCameraZ').value);
+            const rotX = parseFloat(document.getElementById('mobileCameraRotX').value);
+            const rotY = parseFloat(document.getElementById('mobileCameraRotY').value);
+            const rotZ = parseFloat(document.getElementById('mobileCameraRotZ').value);
+            
+            // Update display values
+            document.getElementById('mobileCameraRotXValue').textContent = rotX + '°';
+            document.getElementById('mobileCameraRotYValue').textContent = rotY + '°';
+            document.getElementById('mobileCameraRotZValue').textContent = rotZ + '°';
+            
+            // Sync with desktop controls
+            document.getElementById('cameraX').value = x;
+            document.getElementById('cameraY').value = y;
+            document.getElementById('cameraZ').value = z;
+            document.getElementById('cameraRotX').value = rotX;
+            document.getElementById('cameraRotY').value = rotY;
+            document.getElementById('cameraRotZ').value = rotZ;
+            document.getElementById('cameraRotXValue').textContent = rotX + '°';
+            document.getElementById('cameraRotYValue').textContent = rotY + '°';
+            document.getElementById('cameraRotZValue').textContent = rotZ + '°';
+            
+            // Apply camera transformation
             demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translate3d(${x}px, ${y}px, ${z}px)`;
             document.getElementById('viewInfo').textContent = `Camera: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`;
         }
@@ -436,6 +499,16 @@ transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
             document.getElementById('cameraRotY').value = 45;
             document.getElementById('cameraRotZ').value = 0;
             updateCamera();
+        }
+
+        function resetMobileCamera() {
+            document.getElementById('mobileCameraX').value = 0;
+            document.getElementById('mobileCameraY').value = 0;
+            document.getElementById('mobileCameraZ').value = 8;
+            document.getElementById('mobileCameraRotX').value = 30;
+            document.getElementById('mobileCameraRotY').value = 45;
+            document.getElementById('mobileCameraRotZ').value = 0;
+            updateMobileCamera();
         }
         
         function resetView() {

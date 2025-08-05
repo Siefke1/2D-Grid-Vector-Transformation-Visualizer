@@ -489,14 +489,19 @@ button:hover {
     }
     .canvas-container {
         margin: 15px 0;
+        flex-direction: column;
     }
-    .demo-output {
-        height: 300px;
+    canvas {
+        max-width: 100%;
+        height: auto;
     }
-    .side {
-        --side-size: 100px;
-        --side-offset: 50px;
-        font-size: 24px;
+    .zoom-controls {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 10px 0;
+        text-align: center;
+        order: -1;
     }
     .controls {
         gap: 10px;
@@ -517,12 +522,13 @@ button:hover {
     .rotation-group h4 {
         font-size: 12px;
     }
+    /* Hide desktop camera controls on mobile */
     .camera-controls {
-        padding: 8px;
+        display: none;
     }
-    .camera-controls label {
-        display: block;
-        margin-bottom: 5px;
+    /* Show mobile camera card on mobile */
+    .mobile-camera-card {
+        display: block !important;
     }
     .preset-buttons {
         flex-direction: column;
@@ -598,4 +604,65 @@ button:hover {
         font-size: 10px;
         padding: 8px;
     }
+} 
+
+/* Desktop camera controls - show by default */
+.camera-controls {
+    display: block;
+} 
+
+/* Mobile camera card */
+.mobile-camera-card {
+    display: none;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.mobile-camera-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #495057;
+}
+
+.mobile-camera-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.mobile-camera-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+.mobile-camera-row input[type="number"] {
+    width: 60px;
+    padding: 4px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.mobile-camera-row input[type="range"] {
+    flex: 1;
+}
+
+.mobile-camera-row span {
+    min-width: 40px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.mobile-camera-card button {
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+    margin-top: 10px;
 } 
