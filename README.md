@@ -2,18 +2,6 @@
 
 Interactive visualization tools for exploring linear transformations in 2D and 3D space. Understand how matrices transform vectors and grids through real-time visual feedback.
 
-## Project Structure
-
-```
-linear_transformations/
-├── index.html              # Main navigation page
-├── 2d/
-│   └── index.html         # 2D transformation visualizer
-├── 3d/
-│   └── index.html         # 3D transformation visualizer
-└── README.md              # This file
-```
-
 ## Features
 
 ### 2D Version (`2d/index.html`)
