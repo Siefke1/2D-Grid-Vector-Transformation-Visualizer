@@ -2,6 +2,8 @@
 
 Interactive visualization tools for exploring linear transformations in 2D and 3D space. Understand how matrices transform vectors and grids through real-time visual feedback.
 
+## Example
+[Demo](https://siefke1.github.io/linear-transformation-visualizer/)
 ## Features
 
 ### 2D Version (`2d/index.html`)
