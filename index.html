@@ -30,11 +30,43 @@
             display: flex;
             justify-content: center;
             margin: 20px 0;
+            position: relative;
         }
         canvas {
             border: 2px solid #ddd;
             border-radius: 10px;
             background: #f8f9fa;
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .zoom-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 12px;
+        }
+        .zoom-controls button:hover {
+            background: #0056b3;
+        }
+        .zoom-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
         .controls {
             display: grid;
@@ -78,6 +110,15 @@
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
+        }
+        .determinant-display {
+            font-family: monospace;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            font-weight: bold;
         }
         .preset-buttons {
             display: flex;
@@ -136,6 +177,12 @@
         
         <div class="canvas-container">
             <canvas id="gridCanvas" width="800" height="600"></canvas>
+            <div class="zoom-controls">
+                <button onclick="zoomIn()">+</button>
+                <button onclick="zoomOut()">-</button>
+                <button onclick="resetView()">Reset View</button>
+                <div class="zoom-info" id="zoomInfo">Zoom: 1.00x</div>
+            </div>
         </div>
         
         <div class="controls">
@@ -157,6 +204,9 @@
                 <div class="matrix-display" id="matrixDisplay">
                     [1  0]<br>
                     [0  1]
+                </div>
+                <div class="determinant-display" id="determinantDisplay">
+                    Determinant: 1.00
                 </div>
                 <button onclick="applyTransformation()">Apply Transformation</button>
                 <button onclick="resetGrid()">Reset</button>
@@ -187,13 +237,77 @@
         const canvas = document.getElementById('gridCanvas');
         const ctx = canvas.getContext('2d');
         
+        // Viewport transformation variables
+        let viewport = {
+            scale: 1.0,
+            offsetX: 0,
+            offsetY: 0,
+            isDragging: false,
+            lastX: 0,
+            lastY: 0
+        };
+        
         let gridPoints = [];
         let transformedPoints = [];
         let currentMatrix = [[1, 0], [0, 1]];
         let currentVector = [2, 1];
         let transformedVector = [2, 1];
         
-        // Apply transformation matrix to a point
+        // Convert screen coordinates to world coordinates
+        function screenToWorld(screenX, screenY) {
+            // Remove the canvas center offset first, then the viewport offset, then scale
+            const worldX = (screenX - canvas.width / 2 - viewport.offsetX) / viewport.scale;
+            const worldY = -(screenY - canvas.height / 2 - viewport.offsetY) / viewport.scale;
+            return [worldX, worldY];
+        }
+        
+        // Convert world coordinates to screen coordinates
+        function worldToScreen(worldX, worldY) {
+            const screenX = worldX * viewport.scale + viewport.offsetX + canvas.width / 2;
+            const screenY = -worldY * viewport.scale + viewport.offsetY + canvas.height / 2;
+            return [screenX, screenY];
+        }
+        
+        // Apply viewport transformation to context
+        function applyViewportTransform() {
+            ctx.save();
+            // First translate to center the coordinate system
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            // Then apply the viewport offset and scale
+            ctx.translate(viewport.offsetX, viewport.offsetY);
+            ctx.scale(viewport.scale, -viewport.scale); // Flip Y-axis for mathematical coordinates
+        }
+        
+        // Restore context after viewport transformation
+        function restoreViewportTransform() {
+            ctx.restore();
+        }
+        
+        // Zoom functions
+        function zoomIn() {
+            viewport.scale *= 1.2;
+            updateZoomInfo();
+            drawGrid();
+        }
+        
+        function zoomOut() {
+            viewport.scale /= 1.2;
+            updateZoomInfo();
+            drawGrid();
+        }
+        
+        function resetView() {
+            viewport.scale = 1.0;
+            viewport.offsetX = 0;
+            viewport.offsetY = 0;
+            updateZoomInfo();
+            drawGrid();
+        }
+        
+        function updateZoomInfo() {
+            document.getElementById('zoomInfo').textContent = `Zoom: ${viewport.scale.toFixed(2)}x`;
+        }
+        
         function transformPoint(point, matrix) {
             const [x, y] = point;
             const [[a, b], [c, d]] = matrix;
@@ -202,12 +316,12 @@
         
         // Draw arrow
         function drawArrow(startX, startY, endX, endY, color, lineWidth = 3) {
-            const headLength = 15;
+            const headLength = 15 / viewport.scale;
             const angle = Math.atan2(endY - startY, endX - startX);
             
             ctx.strokeStyle = color;
             ctx.fillStyle = color;
-            ctx.lineWidth = lineWidth;
+            ctx.lineWidth = lineWidth / viewport.scale;
             
             // Draw line
             ctx.beginPath();
@@ -226,7 +340,6 @@
             ctx.stroke();
         }
         
-        // Initialize grid
         function initializeGrid() {
             const gridSize = parseInt(document.getElementById('gridSize').value);
             const spacing = parseInt(document.getElementById('gridSpacing').value);
@@ -242,57 +355,58 @@
             drawGrid();
         }
         
-        // Update transformed points based on current matrix
         function updateTransformedPoints() {
             transformedPoints = gridPoints.map(point => transformPoint(point, currentMatrix));
         }
         
-        // Update transformed vector
         function updateTransformedVector() {
             transformedVector = transformPoint(currentVector, currentMatrix);
         }
         
-        // Draw the grid
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            applyViewportTransform();
+            
             // Draw coordinate axes
             ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2 / viewport.scale;
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height / 2);
-            ctx.lineTo(canvas.width, canvas.height / 2);
-            ctx.moveTo(canvas.width / 2, 0);
-            ctx.lineTo(canvas.width / 2, canvas.height);
+            // X-axis (horizontal line through origin)
+            ctx.moveTo(-canvas.width / viewport.scale, 0);
+            ctx.lineTo(canvas.width / viewport.scale, 0);
+            // Y-axis (vertical line through origin)
+            ctx.moveTo(0, -canvas.height / viewport.scale);
+            ctx.lineTo(0, canvas.height / viewport.scale);
             ctx.stroke();
             
             // Draw original grid lines
             ctx.strokeStyle = '#007bff';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1 / viewport.scale;
             const spacing = parseInt(document.getElementById('gridSpacing').value);
             const gridSize = parseInt(document.getElementById('gridSize').value);
             
             // Draw vertical lines
             for (let i = -gridSize; i <= gridSize; i++) {
-                const x = i * spacing + canvas.width / 2;
+                const x = i * spacing;
                 ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
+                ctx.moveTo(x, -gridSize * spacing);
+                ctx.lineTo(x, gridSize * spacing);
                 ctx.stroke();
             }
             
             // Draw horizontal lines
             for (let j = -gridSize; j <= gridSize; j++) {
-                const y = -j * spacing + canvas.height / 2;
+                const y = j * spacing;
                 ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
+                ctx.moveTo(-gridSize * spacing, y);
+                ctx.lineTo(gridSize * spacing, y);
                 ctx.stroke();
             }
             
             // Draw transformed grid lines
             ctx.strokeStyle = '#ff6b6b';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1 / viewport.scale;
             
             // Draw transformed vertical lines
             for (let i = -gridSize; i <= gridSize; i++) {
@@ -300,14 +414,9 @@
                 const transformedStart = transformPoint([originalX, -gridSize * spacing], currentMatrix);
                 const transformedEnd = transformPoint([originalX, gridSize * spacing], currentMatrix);
                 
-                const startX = transformedStart[0] + canvas.width / 2;
-                const startY = -transformedStart[1] + canvas.height / 2;
-                const endX = transformedEnd[0] + canvas.width / 2;
-                const endY = -transformedEnd[1] + canvas.height / 2;
-                
                 ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(endX, endY);
+                ctx.moveTo(transformedStart[0], transformedStart[1]);
+                ctx.lineTo(transformedEnd[0], transformedEnd[1]);
                 ctx.stroke();
             }
             
@@ -317,34 +426,74 @@
                 const transformedStart = transformPoint([-gridSize * spacing, originalY], currentMatrix);
                 const transformedEnd = transformPoint([gridSize * spacing, originalY], currentMatrix);
                 
-                const startX = transformedStart[0] + canvas.width / 2;
-                const startY = -transformedStart[1] + canvas.height / 2;
-                const endX = transformedEnd[0] + canvas.width / 2;
-                const endY = -transformedEnd[1] + canvas.height / 2;
-                
                 ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(endX, endY);
+                ctx.moveTo(transformedStart[0], transformedStart[1]);
+                ctx.lineTo(transformedEnd[0], transformedEnd[1]);
                 ctx.stroke();
             }
             
             // Draw original vector
-            const vectorStartX = canvas.width / 2;
-            const vectorStartY = canvas.height / 2;
-            const vectorEndX = currentVector[0] * spacing + canvas.width / 2;
-            const vectorEndY = -currentVector[1] * spacing + canvas.height / 2;
+            const vectorStartX = 0;
+            const vectorStartY = 0;
+            const vectorEndX = currentVector[0] * spacing;
+            const vectorEndY = currentVector[1] * spacing;
             drawArrow(vectorStartX, vectorStartY, vectorEndX, vectorEndY, '#28a745', 4);
             
             // Draw transformed vector
-            const transformedVectorStartX = canvas.width / 2;
-            const transformedVectorStartY = canvas.height / 2;
-            const transformedVectorEndX = transformedVector[0] * spacing + canvas.width / 2;
-            const transformedVectorEndY = -transformedVector[1] * spacing + canvas.height / 2;
+            const transformedVectorStartX = 0;
+            const transformedVectorStartY = 0;
+            const transformedVectorEndX = transformedVector[0] * spacing;
+            const transformedVectorEndY = transformedVector[1] * spacing;
             drawArrow(transformedVectorStartX, transformedVectorStartY, 
                      transformedVectorEndX, transformedVectorEndY, '#ffc107', 4);
+            
+            restoreViewportTransform();
         }
         
-        // Update vector
+        // Mouse event handlers for pan and zoom
+        canvas.addEventListener('mousedown', function(e) {
+            viewport.isDragging = true;
+            viewport.lastX = e.clientX;
+            viewport.lastY = e.clientY;
+        });
+        
+        canvas.addEventListener('mousemove', function(e) {
+            if (viewport.isDragging) {
+                const deltaX = e.clientX - viewport.lastX;
+                const deltaY = e.clientY - viewport.lastY;
+                viewport.offsetX += deltaX;
+                viewport.offsetY += deltaY;
+                viewport.lastX = e.clientX;
+                viewport.lastY = e.clientY;
+                drawGrid();
+            }
+        });
+        
+        canvas.addEventListener('mouseup', function(e) {
+            viewport.isDragging = false;
+        });
+        
+        canvas.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Convert mouse position to world coordinates
+            const [worldX, worldY] = screenToWorld(mouseX, mouseY);
+            
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            viewport.scale *= zoomFactor;
+            
+            // Adjust offset to zoom towards mouse position
+            const [newScreenX, newScreenY] = worldToScreen(worldX, worldY);
+            viewport.offsetX += mouseX - newScreenX;
+            viewport.offsetY += mouseY - newScreenY;
+            
+            updateZoomInfo();
+            drawGrid();
+        });
+        
         function updateVector() {
             const x = parseFloat(document.getElementById('vectorX').value);
             const y = parseFloat(document.getElementById('vectorY').value);
@@ -353,7 +502,6 @@
             drawGrid();
         }
         
-        // Apply transformation
         function applyTransformation() {
             const a11 = parseFloat(document.getElementById('a11').value);
             const a12 = parseFloat(document.getElementById('a12').value);
@@ -367,7 +515,6 @@
             updateMatrixDisplay();
         }
         
-        // Reset grid
         function resetGrid() {
             currentMatrix = [[1, 0], [0, 1]];
             document.getElementById('a11').value = 1;
@@ -380,19 +527,26 @@
             updateMatrixDisplay();
         }
         
-        // Update grid settings
         function updateGrid() {
             initializeGrid();
         }
         
-        // Update matrix display
-        function updateMatrixDisplay() {
-            const [[a11, a12], [a21, a22]] = currentMatrix;
-            document.getElementById('matrixDisplay').innerHTML = 
-                `[${a11.toFixed(2)}  ${a12.toFixed(2)}]<br>[${a21.toFixed(2)}  ${a22.toFixed(2)}]`;
+        function calculateDeterminant(matrix) {
+            const [[a11, a12], [a21, a22]] = matrix;
+            return a11 * a22 - a12 * a21;
         }
         
-        // Set preset transformations
+        function updateMatrixDisplay() {
+            const [[a11, a12], [a21, a22]] = currentMatrix;
+            const determinant = calculateDeterminant(currentMatrix);
+            
+            document.getElementById('matrixDisplay').innerHTML = 
+                `[${a11.toFixed(2)}  ${a12.toFixed(2)}]<br>[${a21.toFixed(2)}  ${a22.toFixed(2)}]`;
+            
+            document.getElementById('determinantDisplay').innerHTML = 
+                `Determinant: ${determinant.toFixed(2)}`;
+        }
+        
         function setPreset(type) {
             let matrix;
             switch(type) {
@@ -434,6 +588,7 @@
         window.onload = function() {
             initializeGrid();
             updateMatrixDisplay();
+            updateZoomInfo();
         };
     </script>
 </body>
