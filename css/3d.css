@@ -230,35 +230,10 @@ h1 {
     transform: rotateY(90deg);
 }
 
-.view-controls {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.view-controls button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    margin: 2px;
-    font-size: 12px;
-}
-
-.view-controls button:hover {
-    background: #0056b3;
-}
-
 .view-info {
-    font-size: 12px;
+    font-size: 11px;
     color: #666;
-    margin-top: 5px;
+    text-align: center;
 }
 
 input[type="number"] {
@@ -430,20 +405,9 @@ button:hover {
 }
 
 .camera-controls label {
-    display: inline-block;
-    margin: 5px 10px 5px 0;
-}
-
-.transform-code {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px 0;
-    font-family: 'Courier New', monospace;
+    display: block;
+    margin: 5px 0;
     font-size: 12px;
-    overflow-x: auto;
-    white-space: nowrap;
 }
 
 /* Responsive Design */
@@ -537,6 +501,10 @@ button:hover {
         display: none !important;
     }
     
+    .view-controls {
+        display: none !important;
+    }
+    
     .mobile-camera-card {
         display: block !important;
         margin-bottom: 10px;
@@ -615,10 +583,6 @@ button:hover {
         width: 40px;
         margin: 0 3px;
     }
-    .transform-code {
-        font-size: 10px;
-        padding: 8px;
-    }
 } 
 
 /* Desktop camera controls - show by default */
@@ -680,4 +644,49 @@ button:hover {
     padding: 8px;
     font-size: 12px;
     margin-top: 10px;
+} 
+
+.camera-controls {
+    gap: 10px;
+}
+
+.camera-controls h4 {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    color: #495057;
+}
+
+.camera-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.camera-row label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #495057;
+}
+
+.camera-row input[type="number"] {
+    width: 60px;
+    padding: 4px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.camera-row input[type="range"] {
+    flex: 1;
+    margin: 0 5px;
+}
+
+.camera-row span {
+    min-width: 40px;
+    font-size: 11px;
+    color: #666;
+    text-align: right;
 } 

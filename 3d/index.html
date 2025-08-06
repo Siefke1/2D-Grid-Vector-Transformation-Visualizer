@@ -59,26 +59,21 @@
             <div class="control-group">
                 <h3>Camera Controls</h3>
                 <div class="camera-controls">
-                    <h4>Camera Position</h4>
-                    <label>X: <input type="number" id="cameraX" value="0" step="0.5" onchange="updateCamera()"></label>
-                    <label>Y: <input type="number" id="cameraY" value="0" step="0.5" onchange="updateCamera()"></label>
-                    <label>Z: <input type="number" id="cameraZ" value="8" step="0.5" onchange="updateCamera()"></label>
-                </div>
-                <div class="rotation-controls">
-                    <div class="rotation-group">
-                        <h4>Camera Rotation X</h4>
-                        <input type="range" id="cameraRotX" min="-360" max="360" value="30" step="1" oninput="updateCamera()">
+                    <div class="camera-row">
+                        <label>Rot X: <input type="range" id="cameraRotX" min="-360" max="360" value="30" step="1" oninput="updateCamera()"></label>
                         <span id="cameraRotXValue">30°</span>
                     </div>
-                    <div class="rotation-group">
-                        <h4>Camera Rotation Y</h4>
-                        <input type="range" id="cameraRotY" min="-360" max="360" value="45" step="1" oninput="updateCamera()">
+                    <div class="camera-row">
+                        <label>Rot Y: <input type="range" id="cameraRotY" min="-360" max="360" value="45" step="1" oninput="updateCamera()"></label>
                         <span id="cameraRotYValue">45°</span>
                     </div>
-                    <div class="rotation-group">
-                        <h4>Camera Rotation Z</h4>
-                        <input type="range" id="cameraRotZ" min="-360" max="360" value="0" step="1" oninput="updateCamera()">
+                    <div class="camera-row">
+                        <label>Rot Z: <input type="range" id="cameraRotZ" min="-360" max="360" value="0" step="1" oninput="updateCamera()"></label>
                         <span id="cameraRotZValue">0°</span>
+                    </div>
+                    <div class="camera-row">
+                        <label>Zoom: <input type="range" id="cameraZoom" min="0.1" max="5" value="1" step="0.1" oninput="updateCamera()"></label>
+                        <span id="cameraZoomValue">1.0x</span>
                     </div>
                 </div>
                 <button onclick="resetCamera()" style="margin-top: 10px;">Reset Camera</button>
@@ -127,11 +122,6 @@
             <div class="mobile-camera-card">
                 <h4>Camera Controls</h4>
                 <div class="mobile-camera-row">
-                    <label>X: <input type="number" id="mobileCameraX" value="0" step="0.5" onchange="updateMobileCamera()"></label>
-                    <label>Y: <input type="number" id="mobileCameraY" value="0" step="0.5" onchange="updateMobileCamera()"></label>
-                    <label>Z: <input type="number" id="mobileCameraZ" value="8" step="0.5" onchange="updateMobileCamera()"></label>
-                </div>
-                <div class="mobile-camera-row">
                     <label>Rot X: <input type="range" id="mobileCameraRotX" min="-360" max="360" value="30" step="1" oninput="updateMobileCamera()"></label>
                     <span id="mobileCameraRotXValue">30°</span>
                 </div>
@@ -142,6 +132,10 @@
                 <div class="mobile-camera-row">
                     <label>Rot Z: <input type="range" id="mobileCameraRotZ" min="-360" max="360" value="0" step="1" oninput="updateMobileCamera()"></label>
                     <span id="mobileCameraRotZValue">0°</span>
+                </div>
+                <div class="mobile-camera-row">
+                    <label>Zoom: <input type="range" id="mobileCameraZoom" min="0.1" max="5" value="1" step="0.1" oninput="updateMobileCamera()"></label>
+                    <span id="mobileCameraZoomValue">1.0x</span>
                 </div>
                 <button onclick="resetMobileCamera()">Reset Camera</button>
             </div>
@@ -169,10 +163,6 @@
                         <p class="axial-line axial-line--y"></p>
                         <p class="axial-line axial-line--z"></p>
                     </div>
-                    <div class="view-controls">
-                        <button onclick="resetView()">Reset View</button>
-                        <div class="view-info" id="viewInfo">Camera: (0, 0, 8)</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -187,6 +177,8 @@
             [0, 1, 0],
             [0, 0, 1]
         ];
+        
+        let zoomFactor = 1.0;
         
         function createRotationX(angle) {
             const rad = angle * Math.PI / 180;
@@ -427,92 +419,91 @@
         
         // Camera controls
         function updateCamera() {
-            const x = parseFloat(document.getElementById('cameraX').value);
-            const y = parseFloat(document.getElementById('cameraY').value);
-            const z = parseFloat(document.getElementById('cameraZ').value);
             const rotX = parseFloat(document.getElementById('cameraRotX').value);
             const rotY = parseFloat(document.getElementById('cameraRotY').value);
             const rotZ = parseFloat(document.getElementById('cameraRotZ').value);
+            const zoom = parseFloat(document.getElementById('cameraZoom').value);
+            
+            zoomFactor = zoom;
             
             // Update display values
             document.getElementById('cameraRotXValue').textContent = rotX + '°';
             document.getElementById('cameraRotYValue').textContent = rotY + '°';
             document.getElementById('cameraRotZValue').textContent = rotZ + '°';
+            document.getElementById('cameraZoomValue').textContent = zoom.toFixed(1) + 'x';
             
             // Sync with mobile controls
-            document.getElementById('mobileCameraX').value = x;
-            document.getElementById('mobileCameraY').value = y;
-            document.getElementById('mobileCameraZ').value = z;
             document.getElementById('mobileCameraRotX').value = rotX;
             document.getElementById('mobileCameraRotY').value = rotY;
             document.getElementById('mobileCameraRotZ').value = rotZ;
+            document.getElementById('mobileCameraZoom').value = zoom;
             document.getElementById('mobileCameraRotXValue').textContent = rotX + '°';
             document.getElementById('mobileCameraRotYValue').textContent = rotY + '°';
             document.getElementById('mobileCameraRotZValue').textContent = rotZ + '°';
+            document.getElementById('mobileCameraZoomValue').textContent = zoom.toFixed(1) + 'x';
             
-            // Apply camera rotation to the container with more pronounced effect
-            // This rotates the view around the transformed object
-            demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translate3d(${x}px, ${y}px, ${z}px)`;
-            document.getElementById('viewInfo').textContent = `Camera: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`;
+            // Apply camera transformation with proper 3D zoom
+            demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale3d(${zoomFactor}, ${zoomFactor}, ${zoomFactor})`;
         }
 
         function updateMobileCamera() {
-            const x = parseFloat(document.getElementById('mobileCameraX').value);
-            const y = parseFloat(document.getElementById('mobileCameraY').value);
-            const z = parseFloat(document.getElementById('mobileCameraZ').value);
             const rotX = parseFloat(document.getElementById('mobileCameraRotX').value);
             const rotY = parseFloat(document.getElementById('mobileCameraRotY').value);
             const rotZ = parseFloat(document.getElementById('mobileCameraRotZ').value);
+            const zoom = parseFloat(document.getElementById('mobileCameraZoom').value);
+            
+            zoomFactor = zoom;
             
             // Update display values
             document.getElementById('mobileCameraRotXValue').textContent = rotX + '°';
             document.getElementById('mobileCameraRotYValue').textContent = rotY + '°';
             document.getElementById('mobileCameraRotZValue').textContent = rotZ + '°';
+            document.getElementById('mobileCameraZoomValue').textContent = zoom.toFixed(1) + 'x';
             
             // Sync with desktop controls
-            document.getElementById('cameraX').value = x;
-            document.getElementById('cameraY').value = y;
-            document.getElementById('cameraZ').value = z;
             document.getElementById('cameraRotX').value = rotX;
             document.getElementById('cameraRotY').value = rotY;
             document.getElementById('cameraRotZ').value = rotZ;
+            document.getElementById('cameraZoom').value = zoom;
             document.getElementById('cameraRotXValue').textContent = rotX + '°';
             document.getElementById('cameraRotYValue').textContent = rotY + '°';
             document.getElementById('cameraRotZValue').textContent = rotZ + '°';
+            document.getElementById('cameraZoomValue').textContent = zoom.toFixed(1) + 'x';
             
-            // Apply camera transformation
-            demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) translate3d(${x}px, ${y}px, ${z}px)`;
-            document.getElementById('viewInfo').textContent = `Camera: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`;
+            // Apply camera transformation with proper 3D zoom
+            demoContainer.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale3d(${zoomFactor}, ${zoomFactor}, ${zoomFactor})`;
         }
 
         function resetCamera() {
-            document.getElementById('cameraX').value = 0;
-            document.getElementById('cameraY').value = 0;
-            document.getElementById('cameraZ').value = 8;
-            document.getElementById('cameraRotX').value = 30;
-            document.getElementById('cameraRotY').value = 45;
-            document.getElementById('cameraRotZ').value = 0;
+            const defaultValues = {
+                rotX: 30, rotY: 45, rotZ: 0,
+                zoom: 1.0
+            };
+            
+            // Reset desktop controls
+            document.getElementById('cameraRotX').value = defaultValues.rotX;
+            document.getElementById('cameraRotY').value = defaultValues.rotY;
+            document.getElementById('cameraRotZ').value = defaultValues.rotZ;
+            document.getElementById('cameraZoom').value = defaultValues.zoom;
+            
+            // Reset mobile controls
+            document.getElementById('mobileCameraRotX').value = defaultValues.rotX;
+            document.getElementById('mobileCameraRotY').value = defaultValues.rotY;
+            document.getElementById('mobileCameraRotZ').value = defaultValues.rotZ;
+            document.getElementById('mobileCameraZoom').value = defaultValues.zoom;
+            
+            // Reset zoom factor
+            zoomFactor = defaultValues.zoom;
+            
             updateCamera();
         }
 
         function resetMobileCamera() {
-            document.getElementById('mobileCameraX').value = 0;
-            document.getElementById('mobileCameraY').value = 0;
-            document.getElementById('mobileCameraZ').value = 8;
-            document.getElementById('mobileCameraRotX').value = 30;
-            document.getElementById('mobileCameraRotY').value = 45;
-            document.getElementById('mobileCameraRotZ').value = 0;
-            updateMobileCamera();
+            resetCamera();
         }
         
         function resetView() {
-            document.getElementById('cameraX').value = 0;
-            document.getElementById('cameraY').value = 0;
-            document.getElementById('cameraZ').value = 8;
-            document.getElementById('cameraRotX').value = 30;
-            document.getElementById('cameraRotY').value = 45;
-            document.getElementById('cameraRotZ').value = 0;
-            updateCamera();
+            resetCamera(); // Use the same reset function
         }
         
         // Mouse controls for 3D navigation
@@ -553,9 +544,8 @@
         
         demoContainer.addEventListener('wheel', function(e) {
             e.preventDefault();
-            const currentZ = parseFloat(document.getElementById('cameraZ').value);
-            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-            document.getElementById('cameraZ').value = currentZ * zoomFactor;
+            const zoomChange = e.deltaY > 0 ? 0.9 : 1.1;
+            zoomFactor *= zoomChange;
             updateCamera();
         });
         
