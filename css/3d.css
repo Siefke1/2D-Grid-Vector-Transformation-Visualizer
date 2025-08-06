@@ -534,7 +534,7 @@ button:hover {
     }
     
     .camera-controls {
-        gap: 8px;
+        display: none !important;
     }
     
     .mobile-camera-card {

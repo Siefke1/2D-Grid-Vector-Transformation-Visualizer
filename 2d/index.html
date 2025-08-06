@@ -172,7 +172,7 @@
         }
         
         // Draw arrow
-        function drawArrow(startX, startY, endX, endY, color, lineWidth = 3) {
+        function drawArrow(startX, startY, endX, endY, color, lineWidth = 2) {
             const headLength = 15 / viewport.scale;
             const angle = Math.atan2(endY - startY, endX - startX);
             
@@ -294,7 +294,7 @@
             const vectorStartY = 0;
             const vectorEndX = currentVector[0] * spacing;
             const vectorEndY = currentVector[1] * spacing;
-            drawArrow(vectorStartX, vectorStartY, vectorEndX, vectorEndY, '#28a745', 4);
+            drawArrow(vectorStartX, vectorStartY, vectorEndX, vectorEndY, '#28a745', 2);
             
             // Draw transformed vector
             const transformedVectorStartX = 0;
@@ -302,7 +302,7 @@
             const transformedVectorEndX = transformedVector[0] * spacing;
             const transformedVectorEndY = transformedVector[1] * spacing;
             drawArrow(transformedVectorStartX, transformedVectorStartY, 
-                     transformedVectorEndX, transformedVectorEndY, '#ffc107', 4);
+                     transformedVectorEndX, transformedVectorEndY, '#ffc107', 2);
             
             restoreViewportTransform();
         }
