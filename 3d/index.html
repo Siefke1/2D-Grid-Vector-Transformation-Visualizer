@@ -53,7 +53,13 @@
                     <div>        [0.00  0.00  1.00]</div>
                     <div>Determinant: 1.00</div>
                 </div>
-                <button onclick="resetGrid()">Reset</button>
+                <div class="button-row">
+                    <button onclick="resetGrid()">Reset</button>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="showOriginal" checked onchange="toggleOriginalCube()">
+                        <span>Show Original Shape</span>
+                    </label>
+                </div>
             </div>
             
             <div class="control-group">
@@ -500,6 +506,17 @@
 
         function resetMobileCamera() {
             resetCamera();
+        }
+        
+        function toggleOriginalCube() {
+            const showOriginal = document.getElementById('showOriginal').checked;
+            const originalCube = document.querySelector('.original-cube');
+            
+            if (showOriginal) {
+                originalCube.style.opacity = '1';
+            } else {
+                originalCube.style.opacity = '0';
+            }
         }
         
         function resetView() {
